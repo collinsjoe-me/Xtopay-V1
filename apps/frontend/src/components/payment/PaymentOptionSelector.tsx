@@ -25,12 +25,15 @@ interface PaymentOptionSelectorProps {
   uuid?: string;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000/api";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000/api";
 
 const PaymentOptionSelector: React.FC<PaymentOptionSelectorProps> = ({
   uuid,
 }) => {
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null);
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(
+    null
+  );
   const [showOtp, setShowOtp] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [modalState, setModalState] = useState({
@@ -51,25 +54,25 @@ const PaymentOptionSelector: React.FC<PaymentOptionSelectorProps> = ({
 
   // Enhanced logging function
   const log = (message: string, data?: unknown) => {
-    console.log(`[PaymentOptionSelector] ${message}`, data || '');
+    console.log(`[PaymentOptionSelector] ${message}`, data || "");
   };
 
   // Fetch payment details when component mounts
   useEffect(() => {
     if (!uuid) {
-      log("No UUID provided, skipping payment details fetch");
+      // log("No UUID provided, skipping payment details fetch");
       setLoading(false);
       return;
     }
 
     const fetchPaymentDetails = async () => {
       try {
-        log("Starting payment details fetch", { uuid });
+        // log("Starting payment details fetch", { uuid });
         setLoading(true);
         setError("");
-        
+
         const res = await fetch(`${API_BASE}/checkout/details/${uuid}`);
-        log("API response received", { status: res.status });
+        // log("API response received", { status: res.status });
 
         if (!res.ok) {
           const errorText = await res.text();
@@ -77,16 +80,16 @@ const PaymentOptionSelector: React.FC<PaymentOptionSelectorProps> = ({
         }
 
         const responseData = await res.json();
-        log("API response data", responseData);
+        // log("API response data", responseData);
 
         if (!responseData?.data) {
           throw new Error("Invalid response structure - missing data");
         }
 
         const { data } = responseData;
-        
+
         // Validate required fields
-        if (typeof data.amount === 'undefined' || !data.businessName) {
+        if (typeof data.amount === "undefined" || !data.businessName) {
           throw new Error("Missing required payment details");
         }
 
@@ -101,20 +104,20 @@ const PaymentOptionSelector: React.FC<PaymentOptionSelectorProps> = ({
           currency: data.currency || "GHS",
           businessName: data.businessName,
           businessEmail: data.businessEmail,
-          logoUrl: data.logoUrl
+          logoUrl: data.logoUrl,
         };
 
-        log("Processed payment details", paymentData);
+        // log("Processed payment details", paymentData);
         setPaymentDetails(paymentData);
-        
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Unknown error";
-        log("Error fetching payment details", { error: errorMessage });
+        const errorMessage =
+          err instanceof Error ? err.message : "Unknown error";
+        // log("Error fetching payment details", { error: errorMessage });
         setError(errorMessage);
         setPaymentDetails(null);
       } finally {
         setLoading(false);
-        log("Payment details fetch completed");
+        // log("Payment details fetch completed");
       }
     };
 
@@ -122,7 +125,7 @@ const PaymentOptionSelector: React.FC<PaymentOptionSelectorProps> = ({
   }, [uuid]);
 
   const handlePaymentInitiated = (method: PaymentMethod) => {
-    log("Payment initiated", { method });
+    // log("Payment initiated", { method });
     if (method !== "card") {
       setShowOtp(true);
     } else {
@@ -141,21 +144,28 @@ const PaymentOptionSelector: React.FC<PaymentOptionSelectorProps> = ({
     log("OTP completed");
     setShowOtp(false);
     setTimeout(() => {
-      const status = Math.random() > 0.5 ? "success" : Math.random() > 0.5 ? "failed" : "insufficient";
+      const status =
+        Math.random() > 0.5
+          ? "success"
+          : Math.random() > 0.5
+            ? "failed"
+            : "insufficient";
       log("Setting payment status", { status });
       setModalState({
         isOpen: true,
         status,
-        title: status === "success" 
-          ? "Payment Successful" 
-          : status === "failed" 
-            ? "Verification Failed" 
-            : "Insufficient Funds",
-        description: status === "success"
-          ? "Your payment has been verified and completed successfully."
-          : status === "failed"
-            ? "The code you entered is invalid. Please try again."
-            : "You don't have enough funds to complete this transaction.",
+        title:
+          status === "success"
+            ? "Payment Successful"
+            : status === "failed"
+              ? "Verification Failed"
+              : "Insufficient Funds",
+        description:
+          status === "success"
+            ? "Your payment has been verified and completed successfully."
+            : status === "failed"
+              ? "The code you entered is invalid. Please try again."
+              : "You don't have enough funds to complete this transaction.",
       });
     }, 1500);
   };
@@ -210,49 +220,52 @@ const PaymentOptionSelector: React.FC<PaymentOptionSelectorProps> = ({
     }
 
     return (
-      <div className="flex flex-col gap-3 p-4 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-2 p-3 sm:p-4 rounded-lg border border-gray-200 bg-[#fff4cc] dark:border-gray-700 dark:bg-gray-800">
+        {/* <div className="flex items-center gap-2"> */}
+        <div className="flex items-center gap-3 sm:gap-4">
           {paymentDetails.logoUrl ? (
-            <div className="shrink-0 flex items-center justify-center w-10 h-10 bg-white dark:bg-gray-900 rounded-full border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div className="shrink-0 flex items-center justify-center w-8 h-8 bg-white dark:bg-gray-900 rounded-full border border-gray-100 dark:border-gray-700 overflow-hidden">
               <Image
                 src={paymentDetails.logoUrl}
                 alt={paymentDetails.businessName}
                 width={40}
                 height={40}
-                className="object-cover"
+                // className="object-cover"
+                className="rounded-full object-contain"
                 onError={(e) => {
-                  log("Failed to load logo image", { error: e });
                   const target = e.target as HTMLImageElement;
                   target.onerror = null;
-                  target.src = '/default-business-logo.png';
+                  target.src = "/merchant/favicon.png";
                 }}
               />
             </div>
           ) : (
-            <div className="shrink-0 flex items-center justify-center w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-full border border-gray-200 dark:border-gray-600">
-              <span className="text-gray-500 dark:text-gray-300 text-lg">🏪</span>
+            <div className="shrink-0 flex items-center justify-center w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-full border border-gray-200 dark:border-gray-600">
+              <span className="text-gray-500 dark:text-gray-300 text-base">
+                🏪
+              </span>
             </div>
           )}
-          
+
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+            <h3 className="text-sm sm:text-base font-medium text-gray-900 dark:text-white truncate">
               {paymentDetails.businessName}
             </h3>
             {paymentDetails.businessEmail && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+              <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
                 {paymentDetails.businessEmail}
               </p>
             )}
           </div>
         </div>
 
-        <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+        {/* Divider */}
+        <div className="border-t border-gray-200 dark:border-gray-700 mt-1 mb-0.5"></div>
 
-        <div className="flex justify-between items-center">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            Amount to pay:
-          </span>
-          <span className="text-lg font-bold text-[#4a3c78] dark:text-blue-400">
+        {/* Amount Info */}
+        <div className="flex justify-between items-center text-xs font-semibold text-gray-700 dark:text-gray-300">
+          <span>Amount to pay</span>
+          <span className="text-[#4a3c78] dark:text-blue-400">
             {paymentDetails.currency} {paymentDetails.amount.toFixed(2)}
           </span>
         </div>
@@ -277,7 +290,7 @@ const PaymentOptionSelector: React.FC<PaymentOptionSelectorProps> = ({
               />
             </div>
           ) : !selectedMethod ? (
-            <div className="space-y-3 py-2.5">
+            <div className="space-y-3 py-4">
               {[
                 {
                   method: "mobileMoney",
@@ -317,7 +330,9 @@ const PaymentOptionSelector: React.FC<PaymentOptionSelectorProps> = ({
                   className="flex w-full items-center justify-between rounded-lg border border-gray-200 bg-white p-3.5 transition-colors hover:border-[#513b7e] hover:bg-[#f5f2fa] dark:border-gray-700 dark:bg-gray-800 dark:hover:border-[#7e6b9e]"
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`rounded-lg bg-[#f5f2fa] p-2 dark:bg-[#3d2c5f]`}>
+                    <div
+                      className={`rounded-lg bg-[#f5f2fa] p-2 dark:bg-[#3d2c5f]`}
+                    >
                       {option.icon}
                     </div>
                     <span className="font-medium text-gray-900 dark:text-white">
@@ -335,10 +350,13 @@ const PaymentOptionSelector: React.FC<PaymentOptionSelectorProps> = ({
                           height={16}
                           className="h-4 w-6 object-contain"
                           onError={(e) => {
-                            log("Failed to load brand logo", { brand, error: e });
+                            log("Failed to load brand logo", {
+                              brand,
+                              error: e,
+                            });
                             const target = e.target as HTMLImageElement;
                             target.onerror = null;
-                            target.src = '/default-brand-logo.svg';
+                            target.src = "/default-brand-logo.svg";
                           }}
                         />
                       ))}
@@ -368,7 +386,9 @@ const PaymentOptionSelector: React.FC<PaymentOptionSelectorProps> = ({
               )}
               {selectedMethod === "mobileMoney" && (
                 <MobileMoneyPaymentForm
-                  onPaymentInitiated={() => handlePaymentInitiated("mobileMoney")}
+                  onPaymentInitiated={() =>
+                    handlePaymentInitiated("mobileMoney")
+                  }
                 />
               )}
               {selectedMethod === "wallet" && (
