@@ -16,6 +16,8 @@ import {
   HandCoins,
 } from "lucide-react";
 import Image from "next/image";
+
+// PaymentDetails inline logic, as per your provided pattern
 import { ReportProblemModal } from "./ReportProblemModal";
 import Link from "next/link";
 
@@ -26,32 +28,9 @@ interface PaymentOptionSelectorProps {
   uuid?: string;
 }
 
-type PaymentData = {
-  amount: number;
-  currency: string;
-  merchantName: string;
-  merchantEmail: string;
-  phoneNumber: string;
-  name?: string;
-};
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000/api/";
-
-interface BusinessInfo {
-  logoUrl: string;
-  businessName: string;
-  businessEmail: string;
-  // Add other fields as needed
-}
-
 const PaymentOptionSelector: React.FC<PaymentOptionSelectorProps> = ({
   uuid,
 }) => {
-  const [businessInfo, setBusinessInfo] = React.useState<BusinessInfo | null>(null);
-  const [paymentData, setPaymentData] = React.useState<PaymentData | null>(
-    null
-  );
-  const [loadError, setLoadError] = React.useState<string | null>(null);
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(
     null
   );
@@ -63,69 +42,6 @@ const PaymentOptionSelector: React.FC<PaymentOptionSelectorProps> = ({
     title: "",
     description: "",
   });
-  // Use uuid prop directly for payment session
-
-  // Fetch business info on mount (only if not in uuid/checkout mode)
-  React.useEffect(() => {
-    if (uuid) return; // Don't fetch business info if uuid is present
-
-    fetch(`${API_BASE}/business/info`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Basic ${btoa("demo_id:demo_key")}`,
-      },
-      body: JSON.stringify({ business_id: "0800000" }),
-    })
-      .then((res) => (res.ok ? res.json() : Promise.reject("Business not found")))
-      .then((data) => {
-        setBusinessInfo(data.data);
-    
-      })
-      .catch(() => {
-        setBusinessInfo(null);
-      });
-  }, [uuid]);
-
-  // Fetch payment details and business info when uuid changes
-  React.useEffect(() => {
-    if (!uuid) return;
-    setLoadError(null);
-    fetch(`${API_BASE}/checkout/status/${uuid}`, {
-      headers: {
-        Authorization: `Basic ${btoa("api_merchant1:key_merchant1")}`,
-      },
-    })
-      .then((res) => (res.ok ? res.json() : Promise.reject("Not found")))
-      .then((data) => {
-        setPaymentData({
-          amount: data.data.amount,
-          currency: data.data.currency || "GHS",
-          merchantName: data.data.merchantName || "Demo Merchant",
-          merchantEmail: data.data.merchantEmail || "merchant@example.com",
-          phoneNumber: data.data.customerPhone || "",
-          name: data.data.payeeName || "",
-        });
-        // Fetch business info for this payment if not already loaded
-        if (!businessInfo && data.data.businessId) {
-          fetch(`${API_BASE}/business/info`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Basic ${btoa("demo_id:demo_key")}`,
-            },
-            body: JSON.stringify({ business_id: data.data.businessId }),
-          })
-            .then((res) => (res.ok ? res.json() : Promise.reject("Business not found")))
-            .then((biz) => setBusinessInfo(biz.data))
-            .catch(() => setBusinessInfo(null));
-        }
-      })
-      .catch(() => {
-        setPaymentData(null);
-        setLoadError("Payment not found or expired.");
-      });
-  }, [uuid, businessInfo]);
 
   const handlePaymentInitiated = (method: PaymentMethod) => {
     // Only show OTP for mobile money and wallet payments
@@ -192,33 +108,17 @@ const PaymentOptionSelector: React.FC<PaymentOptionSelectorProps> = ({
   );
 
   return (
+    
     <section className="mx-auto max-w-md px-4 py-8 sm:py-12">
-   
-      {/* Show payment details and payment options immediately if initiatedUuid is set */}
+      
+      <PaymentDetails
+        amount={100} // Example amount, replace with actual value
+        currency="GHS"
+        businessId="0800000" // Example business ID, replace with actual value
+      />
+
       {uuid && (
         <div className="space-y-6">
-          {loadError ? (
-            <div className="text-center text-red-500 dark:text-red-400">
-              {loadError}
-            </div>
-          ) : paymentData ? (
-            <>
-              <PaymentDetails
-                amount={paymentData.amount}
-                currency={paymentData.currency}
-                merchantName={businessInfo?.businessName || paymentData.merchantName}
-                merchantLogo={businessInfo?.logoUrl || "/merchant/favicon.png"}
-                merchantEmail={businessInfo?.businessEmail || paymentData.merchantEmail}
-                phoneNumber={paymentData.phoneNumber}
-              />
-              {/* Payer name intentionally not displayed */}
-            </>
-          ) : (
-            <div className="text-center text-gray-500 dark:text-gray-400">
-              Loading payment details...
-            </div>
-          )}
-
           {showOtp ? (
             <div className="space-y-6">
               <OTPVerificationForm
@@ -310,7 +210,9 @@ const PaymentOptionSelector: React.FC<PaymentOptionSelectorProps> = ({
               )}
               {selectedMethod === "mobileMoney" && (
                 <MobileMoneyPaymentForm
-                  onPaymentInitiated={() => handlePaymentInitiated("mobileMoney")}
+                  onPaymentInitiated={() =>
+                    handlePaymentInitiated("mobileMoney")
+                  }
                 />
               )}
               {selectedMethod === "wallet" && (
