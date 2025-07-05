@@ -1,0 +1,27 @@
+{
+  "name": "xtopay",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "check-types": "turbo run check-types"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.0",
+    "turbo": "^2.5.4",
+    "typescript": "5.8.2"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@types/node": "^24.0.10",
+    "buffer": "^6.0.3",
+    "fs": "0.0.1-security",
+    "next": "^15.3.5",
+    "path": "^0.12.7"
+  }
+}
