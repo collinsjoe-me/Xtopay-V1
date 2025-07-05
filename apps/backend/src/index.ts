@@ -18,7 +18,7 @@ app.get("/", (req, res) => {
   res.send("Xtopay Backend API is running.");
 });
 
-app.use("/api", routes);
+app.use("/", routes);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
