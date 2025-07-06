@@ -26,7 +26,7 @@ interface PaymentOptionSelectorProps {
 }
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000/api";
+  process.env.NEXT_PUBLIC_API_BASE || "https://proxy.xtopay.co";
 
 const PaymentOptionSelector: React.FC<PaymentOptionSelectorProps> = ({
   uuid,
@@ -373,7 +373,7 @@ const PaymentOptionSelector: React.FC<PaymentOptionSelectorProps> = ({
                   log("Back to payment methods clicked");
                   setSelectedMethod(null);
                 }}
-                className="flex items-center text-sm font-medium text-[#513b7e] hover:text-[#3d2c5f] dark:text-[#7e6b9e]"
+                className="flex items-center py-1.5 text-sm font-medium text-[#513b7e] hover:text-[#3d2c5f] dark:text-[#7e6b9e]"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to payment methods
