@@ -126,7 +126,6 @@ X-Xtopay-Timestamp: 1686830722
     "clientReference": "ORD-12345",
     "status": "paid",
     "amount": 100.5,
-    "channel": "mtn",
     "completePayload": {
       "transactionId": "xtp_pay_789xyz",
       "customerPhone": "233245000111",
