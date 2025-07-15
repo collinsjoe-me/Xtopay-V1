@@ -122,7 +122,7 @@ X-Xtopay-Timestamp: 1686830722
 {
   "event": "payment.completed",
   "data": {
-    "checkoutId": "xtp_123abc",
+    "checkoutId": "xtp_1523abc",
     "clientReference": "ORD-12345",
     "status": "paid",
     "amount": 100.5,
